@@ -5,15 +5,17 @@
         <img id="bfsw-loading-img" src="https://i.ibb.co/Csmm5nBH/image.png" alt="loading" class="spin-logo">
         <div class="loading-msg">loading player...</div>
       </div>
-
       <video id="bfsw-main-video" src="https://ik.imagekit.io/LyricifyMetaData/_Welcome%20One%20And%20All!_%20_%20Battle%20for%20Stars%20Wand%20S1E1.mp4" playsinline webkit-playsinline preload="auto"></video>
-
       <button id="bfsw-skip-btn" class="skip-btn">skip intro</button>
-
+      <a href="https://battleforstarswand.crd.co/#watchepisodetwo" id="bfsw-next-ep-btn" class="next-ep-btn">
+        <span class="next-ep-fill"></span>
+        <span class="next-ep-txt">next episode &raquo;</span>
+      </a>
+      <button id="bfsw-extra-btn" class="cartoon-btn extra-action-btn">extra button</button>
+      <button id="bfsw-credits-btn" class="cartoon-btn credits-action-btn">watch credits</button>
       <div id="bfsw-fs-sub-box" class="fs-sub-box">
         <div id="bfsw-fs-sub-txt" class="fs-sub-txt"></div>
       </div>
-
       <div class="bottom-bar">
         <button id="bfsw-play-btn" class="cartoon-btn">&#10074;&#10074;</button>
         <input type="range" id="bfsw-progress-bar" class="cartoon-slider" value="0" min="0" max="100" step="0.1">
@@ -22,7 +24,6 @@
         <button id="bfsw-fs-btn" class="cartoon-btn">[ &nbsp; ]</button>
       </div>
     </div>
-
     <div class="sub-panel" id="bfsw-sub-panel" style="display: none;">
       <div class="sub-tab">captions</div>
       <div class="sub-screen">
@@ -35,9 +36,7 @@
     </div>
   </div>
 </div>
-
 <style>
-  /* Component Isolation & Structural Safeguards */
   .player-safe-wrapper {
     all: initial;
     display: block;
@@ -45,11 +44,9 @@
     box-sizing: border-box;
     font-family: 'Comic Sans MS', 'Bubblegum Sans', 'Chalkboard SE', cursive, sans-serif;
   }
-
   .player-safe-wrapper *, .player-safe-wrapper *::before, .player-safe-wrapper *::after {
     box-sizing: border-box;
   }
-
   .player-safe-wrapper .player-wrapper {
     display: flex;
     flex-direction: column;
@@ -59,7 +56,6 @@
     max-width: 820px;
     margin: 0 auto;
   }
-
   .player-safe-wrapper .video-frame {
     position: relative;
     width: 100%;
@@ -71,7 +67,6 @@
     box-shadow: 0 10px 0 #222, 0 15px 25px rgba(0,0,0,0.4);
     cursor: default;
   }
-
   .player-safe-wrapper .video-frame.mobile-fullscreen {
     position: fixed !important;
     inset: 0 !important;
@@ -84,18 +79,15 @@
     z-index: 999999 !important;
     background: #000 !important;
   }
-
   .player-safe-wrapper .video-frame.ui-hidden {
     cursor: none;
   }
-
   .player-safe-wrapper .video-frame video {
     width: 100%;
     height: 100%;
     object-fit: contain;
     display: block;
   }
-
   .player-safe-wrapper .loading-screen {
     position: absolute;
     inset: 0;
@@ -108,13 +100,11 @@
     z-index: 20;
     transition: opacity 0.3s ease, visibility 0.3s;
   }
-
   .player-safe-wrapper .loading-screen.gone {
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
   }
-
   .player-safe-wrapper .spin-logo {
     width: 100px;
     height: 100px;
@@ -124,13 +114,11 @@
     box-shadow: 0 6px 0 #2d3436;
     animation: classicBounce 0.5s infinite cubic-bezier(0.36, 0, 0.66, 1) alternate;
   }
-
   @keyframes classicBounce {
     0% { transform: translateY(-30px) scaleX(0.9) scaleY(1.1); }
     50% { transform: translateY(0px) scaleX(1.15) scaleY(0.85); }
     100% { transform: translateY(-30px) scaleX(0.9) scaleY(1.1); }
   }
-
   .player-safe-wrapper .loading-msg {
     color: #2d3436;
     font-size: 20px;
@@ -138,7 +126,6 @@
     text-transform: lowercase;
     letter-spacing: 0.5px;
   }
-
   .player-safe-wrapper .skip-btn {
     position: absolute;
     bottom: 75px;
@@ -159,29 +146,135 @@
     font-family: inherit;
     text-transform: lowercase;
   }
-
   .player-safe-wrapper .skip-btn.show {
     opacity: 1;
     visibility: visible;
   }
-
   .player-safe-wrapper .video-frame.ui-hidden .skip-btn.show {
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
   }
-
+  .player-safe-wrapper .next-ep-btn {
+    position: absolute;
+    bottom: 75px;
+    right: 175px;
+    background: #55efc4;
+    color: #2d3436;
+    border: 3px solid #2d3436;
+    border-radius: 14px;
+    padding: 10px 22px;
+    font-size: 18px;
+    font-weight: 900;
+    cursor: pointer;
+    box-shadow: 0 4px 0 #2d3436;
+    z-index: 13;
+    opacity: 0;
+    visibility: hidden;
+    text-decoration: none;
+    overflow: hidden;
+    display: inline-block;
+    transition: opacity 0.25s ease, visibility 0.25s ease, transform 0.08s ease;
+    font-family: inherit;
+    text-transform: lowercase;
+  }
+  .player-safe-wrapper .next-ep-btn.show {
+    opacity: 1;
+    visibility: visible;
+  }
+  .player-safe-wrapper .video-frame.ui-hidden .next-ep-btn.show {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+  .player-safe-wrapper .next-ep-fill {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 184, 148, 0.35);
+    width: 0%;
+    z-index: 1;
+    pointer-events: none;
+  }
+  .player-safe-wrapper .next-ep-btn.filling .next-ep-fill {
+    transition: width linear;
+    width: 100%;
+  }
+  .player-safe-wrapper .next-ep-txt {
+    position: relative;
+    z-index: 2;
+  }
+  .player-safe-wrapper .extra-action-btn {
+    position: absolute;
+    bottom: 75px;
+    right: 25px;
+    background: #a29bfe;
+    color: #fff;
+    border: 3px solid #2d3436;
+    border-radius: 14px;
+    padding: 10px 22px;
+    font-size: 18px;
+    font-weight: 900;
+    cursor: pointer;
+    box-shadow: 0 4px 0 #2d3436;
+    z-index: 13;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.25s ease, visibility 0.25s ease, transform 0.08s ease;
+    font-family: inherit;
+    text-transform: lowercase;
+  }
+  .player-safe-wrapper .extra-action-btn.show {
+    opacity: 1;
+    visibility: visible;
+  }
+  .player-safe-wrapper .video-frame.ui-hidden .extra-action-btn.show {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+  .player-safe-wrapper .credits-action-btn {
+    position: absolute;
+    bottom: 75px;
+    right: 25px;
+    background: #74b9ff;
+    color: #fff;
+    z-index: 14;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.25s ease, visibility 0.25s ease, transform 0.08s ease;
+    font-family: inherit;
+    text-transform: lowercase;
+  }
+  .player-safe-wrapper .credits-action-btn.show {
+    opacity: 1;
+    visibility: visible;
+  }
+  .player-safe-wrapper .video-frame.ui-hidden .credits-action-btn.show {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+  .player-safe-wrapper .next-ep-btn:hover,
+  .player-safe-wrapper .extra-action-btn:hover,
+  .player-safe-wrapper .credits-action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0 #2d3436;
+  }
+  .player-safe-wrapper .next-ep-btn:active,
+  .player-safe-wrapper .extra-action-btn:active,
+  .player-safe-wrapper .credits-action-btn:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 #2d3436;
+  }
   .player-safe-wrapper .skip-btn:hover {
     background: #ff8786;
     transform: translateY(-2px);
     box-shadow: 0 6px 0 #2d3436;
   }
-
   .player-safe-wrapper .skip-btn:active {
     transform: translateY(2px);
     box-shadow: 0 2px 0 #2d3436;
   }
-
   .player-safe-wrapper .bottom-bar {
     position: absolute;
     bottom: 0;
@@ -197,13 +290,11 @@
     visibility: visible;
     transition: opacity 0.25s ease, visibility 0.25s ease;
   }
-
   .player-safe-wrapper .video-frame.ui-hidden .bottom-bar {
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
   }
-
   .player-safe-wrapper .cartoon-btn {
     background: #ff7675;
     color: #fff;
@@ -216,18 +307,15 @@
     box-shadow: 0 4px 0 #2d3436;
     transition: all 0.08s ease;
   }
-
   .player-safe-wrapper .cartoon-btn:hover {
     background: #ff8786;
     transform: translateY(-2px);
     box-shadow: 0 6px 0 #2d3436;
   }
-
   .player-safe-wrapper .cartoon-btn:active {
     transform: translateY(2px);
     box-shadow: 0 2px 0 #2d3436;
   }
-
   .player-safe-wrapper #bfsw-cc-toggle {
     border-radius: 50%;
     width: 42px;
@@ -238,11 +326,9 @@
     justify-content: center;
     font-size: 14px;
   }
-
   .player-safe-wrapper #bfsw-cc-toggle.off {
     background: #b2bec3;
   }
-
   .player-safe-wrapper .time-lbl {
     color: #fff;
     font-weight: 900;
@@ -250,7 +336,6 @@
     text-shadow: 2px 2px 0 #2d3436;
     min-width: 48px;
   }
-
   .player-safe-wrapper .cartoon-slider {
     flex-grow: 1;
     -webkit-appearance: none;
@@ -261,7 +346,6 @@
     outline: none;
     border: 3px solid #2d3436;
   }
-
   .player-safe-wrapper .cartoon-slider::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
@@ -273,7 +357,6 @@
     cursor: pointer;
     box-shadow: 0 3px 0 #2d3436;
   }
-
   .player-safe-wrapper .fs-sub-box {
     position: absolute;
     bottom: 65px;
@@ -286,13 +369,11 @@
     display: none;
     transition: bottom 0.25s ease;
   }
-
   .player-safe-wrapper .video-frame:fullscreen .fs-sub-box,
   .player-safe-wrapper .video-frame:-webkit-full-screen .fs-sub-box,
   .player-safe-wrapper .video-frame.mobile-fullscreen .fs-sub-box {
     display: block;
   }
-
   .player-safe-wrapper .fs-sub-txt {
     display: inline-block;
     background: #000;
@@ -304,14 +385,12 @@
     font-weight: 900;
     box-shadow: 0 4px 0 rgba(0,0,0,0.5);
   }
-
   .player-safe-wrapper .sub-panel {
     display: flex;
     flex-direction: column;
     align-items: center;
     width: 100%;
   }
-
   .player-safe-wrapper .sub-tab {
     background: #2d3436;
     color: #ffeaa7;
@@ -324,7 +403,6 @@
     text-transform: uppercase;
     letter-spacing: 1px;
   }
-
   .player-safe-wrapper .sub-screen {
     width: 100%;
     background: #000000;
@@ -337,18 +415,15 @@
     gap: 8px;
     box-shadow: 0 8px 0 #2d3436;
   }
-
   .player-safe-wrapper .c-line {
     text-align: center;
     transition: all 0.2s ease;
   }
-
   .player-safe-wrapper .c-line.past {
     color: #636e72;
     font-size: 15px;
     font-weight: 700;
   }
-
   .player-safe-wrapper .c-line.active {
     color: #ffeaa7;
     font-size: 23px;
@@ -357,14 +432,12 @@
     margin: 4px 0;
     transform: scale(1.04);
   }
-
   .player-safe-wrapper .c-line.future {
     color: #636e72;
     font-size: 15px;
     font-weight: 700;
   }
 </style>
-
 <script>
   (function() {
     const loadingImages = [
@@ -377,7 +450,6 @@
       "https://i.ibb.co/v4gpdjWm/image.png",
       "https://i.ibb.co/rGSkBxCX/image.png"
     ];
-
     const imgEl = document.getElementById('bfsw-loading-img');
     if (imgEl) {
       let currentImgIdx = Math.floor(Math.random() * loadingImages.length);
@@ -387,7 +459,6 @@
         if (imgEl) imgEl.src = loadingImages[currentImgIdx];
       }, 250);
     }
-
     const screen = document.getElementById('bfsw-loading-screen');
     const pBtn = document.getElementById('bfsw-play-btn');
     const sBar = document.getElementById('bfsw-progress-bar');
@@ -395,9 +466,11 @@
     const ccBtn = document.getElementById('bfsw-cc-toggle');
     const fBtn = document.getElementById('bfsw-fs-btn');
     const skipBtn = document.getElementById('bfsw-skip-btn');
+    const nextEpBtn = document.getElementById('bfsw-next-ep-btn');
+    const extraBtn = document.getElementById('bfsw-extra-btn');
+    const creditsBtn = document.getElementById('bfsw-credits-btn');
     const box = document.getElementById('bfsw-player-container');
     const video = document.getElementById('bfsw-main-video');
-    
     const lineMinus2 = document.getElementById('bfsw-c-2');
     const lineMinus1 = document.getElementById('bfsw-c-1');
     const lineZero = document.getElementById('bfsw-c-0');
@@ -405,26 +478,26 @@
     const linePlus2 = document.getElementById('bfsw-c2');
     const fsTxt = document.getElementById('bfsw-fs-sub-txt');
     const subWrap = document.getElementById('bfsw-sub-panel');
-
     if (!video) return;
-
     let ccOn = false;
     let hasLoadedOnce = false;
     let inactivityTimer = null;
-
+    let nextEpTriggered = false;
+    let creditsClicked = false;
+    let extraDismissed = sessionStorage.getItem('bfsw_extra_dismissed') === 'true';
+    let countdownRemaining = 10000;
+    let countdownStartTime = null;
+    let countdownTimeout = null;
     function hideLoader() {
       if (!hasLoadedOnce && screen) {
         hasLoadedOnce = true;
         screen.classList.add('gone');
       }
     }
-
     video.addEventListener('canplaythrough', hideLoader);
     video.addEventListener('loadeddata', hideLoader);
     video.addEventListener('playing', hideLoader);
-    
     setTimeout(hideLoader, 12000);
-
     function showUI() {
       box.classList.remove('ui-hidden');
       clearTimeout(inactivityTimer);
@@ -436,20 +509,44 @@
         }, 2500);
       }
     }
-
     box.addEventListener('mousemove', showUI);
     box.addEventListener('touchstart', showUI);
     box.addEventListener('click', showUI);
-
     video.addEventListener('pause', () => {
       box.classList.remove('ui-hidden');
       clearTimeout(inactivityTimer);
+      if (nextEpTriggered && !creditsClicked && !extraDismissed) {
+        if (countdownTimeout) {
+          clearTimeout(countdownTimeout);
+          countdownTimeout = null;
+        }
+        if (countdownStartTime) {
+          const elapsed = Date.now() - countdownStartTime;
+          countdownRemaining = Math.max(0, countdownRemaining - elapsed);
+          countdownStartTime = null;
+        }
+        const fillEl = nextEpBtn.querySelector('.next-ep-fill');
+        if (fillEl) {
+          const computedWidth = window.getComputedStyle(fillEl).width;
+          fillEl.style.transition = 'none';
+          fillEl.style.width = computedWidth;
+        }
+      }
     });
-
     video.addEventListener('play', () => {
       showUI();
+      if (nextEpTriggered && !creditsClicked && !extraDismissed && countdownRemaining > 0) {
+        countdownStartTime = Date.now();
+        const fillEl = nextEpBtn.querySelector('.next-ep-fill');
+        if (fillEl) {
+          fillEl.style.transition = `width ${countdownRemaining}ms linear`;
+          fillEl.style.width = '100%';
+        }
+        countdownTimeout = setTimeout(() => {
+          window.location.href = nextEpBtn.href;
+        }, countdownRemaining);
+      }
     });
-
     const subs = [
       { start: 1.104, end: 2.441, text: "Huh, where are we?" },
       { start: 2.441, end: 5.370, text: "[???]: Welcome, one and all to Battle For Stars Wand!" },
@@ -573,7 +670,6 @@
       { start: 391.951, end: 394.262, text: "who will be the next one eliminated?" },
       { start: 394.262, end: 397.617, text: "Find out next time on Battle For Star’s Wand!" }
     ];
-
     pBtn.addEventListener('click', () => {
       if (video.paused) {
         video.play();
@@ -583,11 +679,9 @@
         pBtn.textContent = '\u25B6';
       }
     });
-
     skipBtn.addEventListener('click', () => {
       video.currentTime = 205;
     });
-
     video.addEventListener('timeupdate', () => {
       if (video.duration) {
         const pct = (video.currentTime / video.duration) * 100;
@@ -597,20 +691,87 @@
         if (s < 10) s = '0' + s;
         tLbl.textContent = m + ':' + s;
         parseSubs(video.currentTime);
-
         if (video.currentTime >= 165 && video.currentTime <= 207) {
           skipBtn.classList.add('show');
         } else {
           skipBtn.classList.remove('show');
         }
+        if (!extraDismissed && !creditsClicked && video.currentTime >= 398 && video.currentTime < 415) {
+          if (!nextEpTriggered) {
+            nextEpTriggered = true;
+            countdownRemaining = 10000;
+            countdownStartTime = Date.now();
+            nextEpBtn.classList.add('show', 'filling');
+            const fillEl = nextEpBtn.querySelector('.next-ep-fill');
+            if (fillEl) {
+              fillEl.style.transition = `width ${countdownRemaining}ms linear`;
+              fillEl.style.width = '100%';
+            }
+            countdownTimeout = setTimeout(() => {
+              window.location.href = nextEpBtn.href;
+            }, countdownRemaining);
+          }
+        } else {
+          if (nextEpTriggered && (video.currentTime < 398 || creditsClicked || extraDismissed)) {
+            nextEpTriggered = false;
+            clearTimeout(countdownTimeout);
+            countdownTimeout = null;
+            nextEpBtn.classList.remove('show', 'filling');
+            const fillEl = nextEpBtn.querySelector('.next-ep-fill');
+            if (fillEl) {
+              fillEl.style.transition = 'none';
+              fillEl.style.width = '0%';
+            }
+          }
+        }
+        if (!extraDismissed && !creditsClicked && video.currentTime >= 398) {
+          extraBtn.classList.add('show');
+        } else {
+          extraBtn.classList.remove('show');
+        }
+        if (!extraDismissed && !creditsClicked && video.currentTime >= 409) {
+          creditsBtn.classList.add('show');
+        } else {
+          creditsBtn.classList.remove('show');
+        }
       }
     });
-
+    extraBtn.addEventListener('click', () => {
+      extraDismissed = true;
+      sessionStorage.setItem('bfsw_extra_dismissed', 'true');
+      clearTimeout(countdownTimeout);
+      countdownTimeout = null;
+      nextEpBtn.classList.remove('show', 'filling');
+      extraBtn.classList.remove('show');
+      creditsBtn.classList.remove('show');
+      const fillEl = nextEpBtn.querySelector('.next-ep-fill');
+      if (fillEl) {
+        fillEl.style.transition = 'none';
+        fillEl.style.width = '0%';
+      }
+    });
+    creditsBtn.addEventListener('click', () => {
+      creditsClicked = true;
+      clearTimeout(countdownTimeout);
+      countdownTimeout = null;
+      nextEpBtn.classList.remove('show', 'filling');
+      extraBtn.classList.remove('show');
+      creditsBtn.classList.remove('show');
+      const fillEl = nextEpBtn.querySelector('.next-ep-fill');
+      if (fillEl) {
+        fillEl.style.transition = 'none';
+        fillEl.style.width = '0%';
+      }
+    });
     video.addEventListener('ended', () => {
       pBtn.textContent = '\u25B6';
       skipBtn.classList.remove('show');
+      nextEpBtn.classList.remove('show', 'filling');
+      extraBtn.classList.remove('show');
+      creditsBtn.classList.remove('show');
+      clearTimeout(countdownTimeout);
+      countdownTimeout = null;
     });
-
     function parseSubs(t) {
       if (!ccOn) {
         lineZero.textContent = "";
@@ -622,7 +783,6 @@
         linePlus2.textContent = "";
         return;
       }
-
       let idx = -1;
       for (let i = 0; i < subs.length; i++) {
         if (t >= subs[i].start && t < subs[i].end) {
@@ -630,13 +790,11 @@
           break;
         }
       }
-
       if (idx !== -1) {
         const txt = subs[idx].text;
         lineZero.textContent = txt;
         fsTxt.textContent = txt;
         fsTxt.style.display = 'inline-block';
-
         lineMinus1.textContent = idx > 0 ? subs[idx - 1].text : "";
         lineMinus2.textContent = idx > 1 ? subs[idx - 2].text : "";
         linePlus1.textContent = idx < subs.length - 1 ? subs[idx + 1].text : "";
@@ -651,7 +809,6 @@
         linePlus2.textContent = "";
       }
     }
-
     ccBtn.addEventListener('click', () => {
       ccOn = !ccOn;
       if (ccOn) {
@@ -670,16 +827,16 @@
         linePlus2.textContent = "";
       }
     });
-
     sBar.addEventListener('input', () => {
       if (video.duration) {
         video.currentTime = (sBar.value / 100) * video.duration;
+        if (video.currentTime < 409) {
+          creditsClicked = false;
+        }
       }
     });
-
     fBtn.addEventListener('click', () => {
       const isFs = document.fullscreenElement || document.webkitFullscreenElement || box.classList.contains('mobile-fullscreen');
-      
       if (!isFs) {
         if (box.requestFullscreen) {
           box.requestFullscreen().catch(() => {
@@ -706,7 +863,6 @@
         }
       }
     });
-
     function updateFsState() {
       const isFs = document.fullscreenElement || document.webkitFullscreenElement || box.classList.contains('mobile-fullscreen');
       if (isFs) {
@@ -717,7 +873,6 @@
         }
       }
     }
-
     document.addEventListener('fullscreenchange', updateFsState);
     document.addEventListener('webkitfullscreenchange', updateFsState);
   })();
