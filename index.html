@@ -36,6 +36,7 @@
     </div>
   </div>
 </div>
+
 <style>
   .player-safe-wrapper {
     all: initial;
@@ -345,6 +346,8 @@
     background: #dfe6e9;
     outline: none;
     border: 3px solid #2d3436;
+    touch-action: none;
+    cursor: pointer;
   }
   .player-safe-wrapper .cartoon-slider::-webkit-slider-thumb {
     -webkit-appearance: none;
@@ -438,6 +441,7 @@
     font-weight: 700;
   }
 </style>
+
 <script>
   (function() {
     const loadingImages = [
@@ -479,6 +483,7 @@
     const fsTxt = document.getElementById('bfsw-fs-sub-txt');
     const subWrap = document.getElementById('bfsw-sub-panel');
     if (!video) return;
+
     let ccOn = false;
     let hasLoadedOnce = false;
     let inactivityTimer = null;
@@ -488,6 +493,7 @@
     let countdownRemaining = 10000;
     let countdownStartTime = null;
     let countdownTimeout = null;
+
     function hideLoader() {
       if (!hasLoadedOnce && screen) {
         hasLoadedOnce = true;
@@ -498,6 +504,7 @@
     video.addEventListener('loadeddata', hideLoader);
     video.addEventListener('playing', hideLoader);
     setTimeout(hideLoader, 12000);
+
     function showUI() {
       box.classList.remove('ui-hidden');
       clearTimeout(inactivityTimer);
@@ -511,9 +518,26 @@
     }
     box.addEventListener('mousemove', showUI);
     box.addEventListener('touchstart', showUI);
-    box.addEventListener('click', showUI);
+
+    function togglePlay(e) {
+      if (e) e.stopPropagation();
+      if (video.paused) {
+        video.play().catch(err => console.log("Play blocked:", err));
+        pBtn.textContent = '\u275A\u275A';
+      } else {
+        video.pause();
+        pBtn.textContent = '\u25B6';
+      }
+    }
+    pBtn.addEventListener('click', togglePlay);
+    video.addEventListener('click', (e) => {
+      togglePlay(e);
+      showUI();
+    });
+
     video.addEventListener('pause', () => {
       box.classList.remove('ui-hidden');
+      pBtn.textContent = '\u25B6';
       clearTimeout(inactivityTimer);
       if (nextEpTriggered && !creditsClicked && !extraDismissed) {
         if (countdownTimeout) {
@@ -533,8 +557,10 @@
         }
       }
     });
+
     video.addEventListener('play', () => {
       showUI();
+      pBtn.textContent = '\u275A\u275A';
       if (nextEpTriggered && !creditsClicked && !extraDismissed && countdownRemaining > 0) {
         countdownStartTime = Date.now();
         const fillEl = nextEpBtn.querySelector('.next-ep-fill');
@@ -547,6 +573,7 @@
         }, countdownRemaining);
       }
     });
+
     const subs = [
       { start: 1.104, end: 2.441, text: "Huh, where are we?" },
       { start: 2.441, end: 5.370, text: "[???]: Welcome, one and all to Battle For Stars Wand!" },
@@ -670,32 +697,110 @@
       { start: 391.951, end: 394.262, text: "who will be the next one eliminated?" },
       { start: 394.262, end: 397.617, text: "Find out next time on Battle For Star’s Wand!" }
     ];
-    pBtn.addEventListener('click', () => {
-      if (video.paused) {
-        video.play();
-        pBtn.textContent = '\u275A\u275A';
+
+    function parseSubs(currentTime) {
+      let currentIndex = subs.findIndex(s => currentTime >= s.start && currentTime <= s.end);
+      if (currentIndex === -1) {
+        currentIndex = subs.findIndex(s => s.start > currentTime) - 1;
+        if (currentIndex < -1) currentIndex = subs.length - 1;
+      }
+      
+      const getSubText = (idx) => (subs[idx] ? subs[idx].text : "");
+      
+      if (lineMinus2) lineMinus2.textContent = getSubText(currentIndex - 2);
+      if (lineMinus1) lineMinus1.textContent = getSubText(currentIndex - 1);
+      if (lineZero) lineZero.textContent = getSubText(currentIndex);
+      if (linePlus1) linePlus1.textContent = getSubText(currentIndex + 1);
+      if (linePlus2) linePlus2.textContent = getSubText(currentIndex + 2);
+
+      let activeText = getSubText(currentIndex);
+      if (fsTxt) fsTxt.textContent = activeText;
+    }
+
+    ccBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      ccOn = !ccOn;
+      if (ccOn) {
+        ccBtn.classList.remove('off');
+        if (subWrap) subWrap.style.display = 'flex';
       } else {
-        video.pause();
-        pBtn.textContent = '\u25B6';
+        ccBtn.classList.add('off');
+        if (subWrap) subWrap.style.display = 'none';
       }
     });
-    skipBtn.addEventListener('click', () => {
+
+    fBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const doc = document;
+      if (!doc.fullscreenElement && !doc.webkitFullscreenElement) {
+        if (box.requestFullscreen) {
+          box.requestFullscreen().catch(err => console.log("Fullscreen error:", err));
+        } else if (box.webkitRequestFullscreen) {
+          box.webkitRequestFullscreen();
+        } else {
+          box.classList.add('mobile-fullscreen');
+        }
+      } else {
+        if (doc.exitFullscreen) {
+          doc.exitFullscreen();
+        } else if (doc.webkitExitFullscreen) {
+          doc.webkitExitFullscreen();
+        } else {
+          box.classList.remove('mobile-fullscreen');
+        }
+      }
+    });
+
+    document.addEventListener('fullscreenchange', () => {
+      if (!document.fullscreenElement) box.classList.remove('mobile-fullscreen');
+    });
+
+    let isSeeking = false;
+    function handleScrub(e) {
+      const rect = sBar.getBoundingClientRect();
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const pos = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+      if (!isNaN(video.duration)) {
+        video.currentTime = pos * video.duration;
+      }
+    }
+
+    sBar.addEventListener('pointerdown', (e) => {
+      isSeeking = true;
+      handleScrub(e);
+      e.stopPropagation();
+    });
+
+    window.addEventListener('pointermove', (e) => {
+      if (!isSeeking) return;
+      handleScrub(e);
+    });
+
+    window.addEventListener('pointerup', () => {
+      isSeeking = false;
+    });
+
+    skipBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
       video.currentTime = 205;
     });
+
     video.addEventListener('timeupdate', () => {
       if (video.duration) {
         const pct = (video.currentTime / video.duration) * 100;
-        sBar.value = pct;
+        if (!isSeeking) sBar.value = pct;
         let m = Math.floor(video.currentTime / 60);
         let s = Math.floor(video.currentTime % 60);
         if (s < 10) s = '0' + s;
         tLbl.textContent = m + ':' + s;
         parseSubs(video.currentTime);
+
         if (video.currentTime >= 165 && video.currentTime <= 207) {
           skipBtn.classList.add('show');
         } else {
           skipBtn.classList.remove('show');
         }
+
         if (!extraDismissed && !creditsClicked && video.currentTime >= 398 && video.currentTime < 415) {
           if (!nextEpTriggered) {
             nextEpTriggered = true;
@@ -724,11 +829,13 @@
             }
           }
         }
+
         if (!extraDismissed && !creditsClicked && video.currentTime >= 398) {
           extraBtn.classList.add('show');
         } else {
           extraBtn.classList.remove('show');
         }
+
         if (!extraDismissed && !creditsClicked && video.currentTime >= 409) {
           creditsBtn.classList.add('show');
         } else {
@@ -736,7 +843,9 @@
         }
       }
     });
-    extraBtn.addEventListener('click', () => {
+
+    extraBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
       extraDismissed = true;
       sessionStorage.setItem('bfsw_extra_dismissed', 'true');
       clearTimeout(countdownTimeout);
@@ -750,7 +859,9 @@
         fillEl.style.width = '0%';
       }
     });
-    creditsBtn.addEventListener('click', () => {
+
+    creditsBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
       creditsClicked = true;
       clearTimeout(countdownTimeout);
       countdownTimeout = null;
@@ -762,118 +873,7 @@
         fillEl.style.transition = 'none';
         fillEl.style.width = '0%';
       }
+      window.location.href = "https://battleforstarswand.crd.co/#credits";
     });
-    video.addEventListener('ended', () => {
-      pBtn.textContent = '\u25B6';
-      skipBtn.classList.remove('show');
-      nextEpBtn.classList.remove('show', 'filling');
-      extraBtn.classList.remove('show');
-      creditsBtn.classList.remove('show');
-      clearTimeout(countdownTimeout);
-      countdownTimeout = null;
-    });
-    function parseSubs(t) {
-      if (!ccOn) {
-        lineZero.textContent = "";
-        fsTxt.textContent = "";
-        fsTxt.style.display = 'none';
-        lineMinus1.textContent = "";
-        lineMinus2.textContent = "";
-        linePlus1.textContent = "";
-        linePlus2.textContent = "";
-        return;
-      }
-      let idx = -1;
-      for (let i = 0; i < subs.length; i++) {
-        if (t >= subs[i].start && t < subs[i].end) {
-          idx = i;
-          break;
-        }
-      }
-      if (idx !== -1) {
-        const txt = subs[idx].text;
-        lineZero.textContent = txt;
-        fsTxt.textContent = txt;
-        fsTxt.style.display = 'inline-block';
-        lineMinus1.textContent = idx > 0 ? subs[idx - 1].text : "";
-        lineMinus2.textContent = idx > 1 ? subs[idx - 2].text : "";
-        linePlus1.textContent = idx < subs.length - 1 ? subs[idx + 1].text : "";
-        linePlus2.textContent = idx < subs.length - 2 ? subs[idx + 2].text : "";
-      } else {
-        lineZero.textContent = "";
-        fsTxt.textContent = "";
-        fsTxt.style.display = 'none';
-        lineMinus1.textContent = "";
-        lineMinus2.textContent = "";
-        linePlus1.textContent = "";
-        linePlus2.textContent = "";
-      }
-    }
-    ccBtn.addEventListener('click', () => {
-      ccOn = !ccOn;
-      if (ccOn) {
-        ccBtn.classList.remove('off');
-        subWrap.style.display = (document.fullscreenElement || document.webkitFullscreenElement || box.classList.contains('mobile-fullscreen')) ? 'none' : 'flex';
-        parseSubs(video.currentTime);
-      } else {
-        ccBtn.classList.add('off');
-        subWrap.style.display = 'none';
-        fsTxt.textContent = "";
-        fsTxt.style.display = 'none';
-        lineZero.textContent = "";
-        lineMinus1.textContent = "";
-        lineMinus2.textContent = "";
-        linePlus1.textContent = "";
-        linePlus2.textContent = "";
-      }
-    });
-    sBar.addEventListener('input', () => {
-      if (video.duration) {
-        video.currentTime = (sBar.value / 100) * video.duration;
-        if (video.currentTime < 409) {
-          creditsClicked = false;
-        }
-      }
-    });
-    fBtn.addEventListener('click', () => {
-      const isFs = document.fullscreenElement || document.webkitFullscreenElement || box.classList.contains('mobile-fullscreen');
-      if (!isFs) {
-        if (box.requestFullscreen) {
-          box.requestFullscreen().catch(() => {
-            box.classList.add('mobile-fullscreen');
-            updateFsState();
-          });
-        } else if (box.webkitRequestFullscreen) {
-          box.webkitRequestFullscreen();
-        } else {
-          box.classList.add('mobile-fullscreen');
-          updateFsState();
-        }
-      } else {
-        if (document.exitFullscreen) {
-          document.exitFullscreen().catch(() => {
-            box.classList.remove('mobile-fullscreen');
-            updateFsState();
-          });
-        } else if (document.webkitExitFullscreen) {
-          document.webkitExitFullscreen();
-        } else {
-          box.classList.remove('mobile-fullscreen');
-          updateFsState();
-        }
-      }
-    });
-    function updateFsState() {
-      const isFs = document.fullscreenElement || document.webkitFullscreenElement || box.classList.contains('mobile-fullscreen');
-      if (isFs) {
-        subWrap.style.display = 'none';
-      } else {
-        if (ccOn) {
-          subWrap.style.display = 'flex';
-        }
-      }
-    }
-    document.addEventListener('fullscreenchange', updateFsState);
-    document.addEventListener('webkitfullscreenchange', updateFsState);
   })();
 </script>
