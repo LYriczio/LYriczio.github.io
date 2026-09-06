@@ -5,6 +5,17 @@
         <img id="bfsw-loading-img" src="https://i.ibb.co/Csmm5nBH/image.png" alt="loading" class="spin-logo">
         <div class="loading-msg">loading player...</div>
       </div>
+
+      <div id="bfsw-resume-prompt" class="resume-prompt-screen" style="display: none;">
+        <div class="resume-prompt-box">
+          <div id="bfsw-resume-txt" class="resume-prompt-msg">Want to continue at last saved part? [0:00]</div>
+          <div class="resume-prompt-btns">
+            <button id="bfsw-resume-yes" class="cartoon-btn">Yes</button>
+            <button id="bfsw-resume-no" class="cartoon-btn">Start Over</button>
+          </div>
+        </div>
+      </div>
+
       <video id="bfsw-main-video" src="https://ik.imagekit.io/LyricifyMetaData/_Welcome%20One%20And%20All!_%20_%20Battle%20for%20Stars%20Wand%20S1E1.mp4" playsinline webkit-playsinline preload="auto"></video>
       <button id="bfsw-skip-btn" class="skip-btn">skip intro</button>
       <a href="https://battleforstarswand.crd.co/#watchepisodetwo" id="bfsw-next-ep-btn" class="next-ep-btn">
@@ -105,6 +116,35 @@
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
+  }
+  .player-safe-wrapper .resume-prompt-screen {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.85);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 25;
+  }
+  .player-safe-wrapper .resume-prompt-box {
+    background: #ffeaa7;
+    border: 4px solid #2d3436;
+    border-radius: 18px;
+    padding: 24px;
+    text-align: center;
+    box-shadow: 0 8px 0 #2d3436;
+    max-width: 90%;
+  }
+  .player-safe-wrapper .resume-prompt-msg {
+    color: #2d3436;
+    font-size: 18px;
+    font-weight: 900;
+    margin-bottom: 20px;
+  }
+  .player-safe-wrapper .resume-prompt-btns {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
   }
   .player-safe-wrapper .spin-logo {
     width: 100px;
@@ -475,6 +515,10 @@
     const creditsBtn = document.getElementById('bfsw-credits-btn');
     const box = document.getElementById('bfsw-player-container');
     const video = document.getElementById('bfsw-main-video');
+    const resumePrompt = document.getElementById('bfsw-resume-prompt');
+    const resumeTxt = document.getElementById('bfsw-resume-txt');
+    const resumeYes = document.getElementById('bfsw-resume-yes');
+    const resumeNo = document.getElementById('bfsw-resume-no');
     const lineMinus2 = document.getElementById('bfsw-c-2');
     const lineMinus1 = document.getElementById('bfsw-c-1');
     const lineZero = document.getElementById('bfsw-c-0');
@@ -483,6 +527,63 @@
     const fsTxt = document.getElementById('bfsw-fs-sub-txt');
     const subWrap = document.getElementById('bfsw-sub-panel');
     if (!video) return;
+
+    const storageKey = 'bfsw_ep1_continue_time';
+
+    function getStoredTime() {
+      try {
+        const val = localStorage.getItem(storageKey);
+        return val ? parseFloat(val) : 0;
+      } catch (e) {
+        return 0;
+      }
+    }
+
+    function setStoredTime(timeVal) {
+      try {
+        localStorage.setItem(storageKey, timeVal);
+      } catch (e) {
+        console.error("Could not save playback time", e);
+      }
+    }
+
+    function formatTimeDisplay(seconds) {
+      const m = Math.floor(seconds / 60);
+      const s = Math.floor(seconds % 60);
+      return m + ":" + (s < 10 ? "0" : "") + s;
+    }
+
+    let hasHandledResume = false;
+    const savedTime = getStoredTime();
+
+    function checkResumePrompt() {
+      if (!hasHandledResume && !isNaN(savedTime) && savedTime > 3) {
+        hasHandledResume = true;
+        if (resumeTxt) {
+          resumeTxt.textContent = `Want to continue at last saved part? [${formatTimeDisplay(savedTime)}]`;
+        }
+        if (resumePrompt) {
+          resumePrompt.style.display = 'flex';
+        }
+      }
+    }
+
+    if (resumeYes) {
+      resumeYes.addEventListener('click', (e) => {
+        e.stopPropagation();
+        video.currentTime = savedTime;
+        if (resumePrompt) resumePrompt.style.display = 'none';
+      });
+    }
+
+    if (resumeNo) {
+      resumeNo.addEventListener('click', (e) => {
+        e.stopPropagation();
+        setStoredTime(0);
+        video.currentTime = 0;
+        if (resumePrompt) resumePrompt.style.display = 'none';
+      });
+    }
 
     let ccOn = false;
     let hasLoadedOnce = false;
@@ -498,6 +599,7 @@
       if (!hasLoadedOnce && screen) {
         hasLoadedOnce = true;
         screen.classList.add('gone');
+        checkResumePrompt();
       }
     }
     video.addEventListener('canplaythrough', hideLoader);
@@ -521,6 +623,7 @@
 
     function togglePlay(e) {
       if (e) e.stopPropagation();
+      if (resumePrompt && resumePrompt.style.display === 'flex') return;
       if (video.paused) {
         video.play().catch(err => console.log("Play blocked:", err));
         pBtn.textContent = '\u275A\u275A';
@@ -572,6 +675,16 @@
           window.location.href = nextEpBtn.href;
         }, countdownRemaining);
       }
+    });
+
+    video.addEventListener('timeupdate', function() {
+      if (video.currentTime > 0 && !video.ended) {
+        setStoredTime(video.currentTime);
+      }
+    });
+
+    video.addEventListener('ended', function() {
+      setStoredTime(0);
     });
 
     const subs = [
@@ -678,7 +791,7 @@
       { start: 338.068, end: 340.241, text: "Glove: It’s alright, you gave it your best shot!" },
       { start: 340.241, end: 343.258, text: "Water: At least TRY to do some kind of unique pose will ya?!" },
       { start: 343.258, end: 346.623, text: "Nickel: hey I don’t have any arms so my poses are kinda limited here!" },
-      { start: 347.167, end: 350.858, text: "Star: Good team name you're up, let’s check out your photo shall we?" },
+      { start: 347.167, end: 350.858, text: "Good team name you're up, let’s check out your photo shall we?" },
       { start: 350.858, end: 355.075, text: "Calculator love the pose! Good team name you are officially safe." },
       { start: 355.075, end: 358.755, text: "Star: Alright winners I will be seeing you at the elimination tonight, everyone else is safe!" },
       { start: 359.800, end: 361.800, text: "Star: It’s kinda ironic how you guys are named the winners" },
@@ -780,100 +893,23 @@
       isSeeking = false;
     });
 
-    skipBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      video.currentTime = 205;
-    });
-
     video.addEventListener('timeupdate', () => {
-      if (video.duration) {
+      if (!isNaN(video.duration)) {
         const pct = (video.currentTime / video.duration) * 100;
-        if (!isSeeking) sBar.value = pct;
-        let m = Math.floor(video.currentTime / 60);
-        let s = Math.floor(video.currentTime % 60);
-        if (s < 10) s = '0' + s;
-        tLbl.textContent = m + ':' + s;
+        sBar.value = pct;
+        const m = Math.floor(video.currentTime / 60);
+        const s = Math.floor(video.currentTime % 60);
+        tLbl.textContent = m + ":" + (s < 10 ? "0" : "") + s;
         parseSubs(video.currentTime);
-
-        if (video.currentTime >= 165 && video.currentTime <= 207) {
-          skipBtn.classList.add('show');
-        } else {
-          skipBtn.classList.remove('show');
-        }
-
-        if (!extraDismissed && !creditsClicked && video.currentTime >= 398 && video.currentTime < 415) {
-          if (!nextEpTriggered) {
-            nextEpTriggered = true;
-            countdownRemaining = 10000;
-            countdownStartTime = Date.now();
-            nextEpBtn.classList.add('show', 'filling');
-            const fillEl = nextEpBtn.querySelector('.next-ep-fill');
-            if (fillEl) {
-              fillEl.style.transition = `width ${countdownRemaining}ms linear`;
-              fillEl.style.width = '100%';
-            }
-            countdownTimeout = setTimeout(() => {
-              window.location.href = nextEpBtn.href;
-            }, countdownRemaining);
-          }
-        } else {
-          if (nextEpTriggered && (video.currentTime < 398 || creditsClicked || extraDismissed)) {
-            nextEpTriggered = false;
-            clearTimeout(countdownTimeout);
-            countdownTimeout = null;
-            nextEpBtn.classList.remove('show', 'filling');
-            const fillEl = nextEpBtn.querySelector('.next-ep-fill');
-            if (fillEl) {
-              fillEl.style.transition = 'none';
-              fillEl.style.width = '0%';
-            }
-          }
-        }
-
-        if (!extraDismissed && !creditsClicked && video.currentTime >= 398) {
-          extraBtn.classList.add('show');
-        } else {
-          extraBtn.classList.remove('show');
-        }
-
-        if (!extraDismissed && !creditsClicked && video.currentTime >= 409) {
-          creditsBtn.classList.add('show');
-        } else {
-          creditsBtn.classList.remove('show');
+        
+        if (video.currentTime > 0 && !video.ended) {
+          setStoredTime(video.currentTime);
         }
       }
     });
 
-    extraBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      extraDismissed = true;
-      sessionStorage.setItem('bfsw_extra_dismissed', 'true');
-      clearTimeout(countdownTimeout);
-      countdownTimeout = null;
-      nextEpBtn.classList.remove('show', 'filling');
-      extraBtn.classList.remove('show');
-      creditsBtn.classList.remove('show');
-      const fillEl = nextEpBtn.querySelector('.next-ep-fill');
-      if (fillEl) {
-        fillEl.style.transition = 'none';
-        fillEl.style.width = '0%';
-      }
-    });
-
-    creditsBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      creditsClicked = true;
-      clearTimeout(countdownTimeout);
-      countdownTimeout = null;
-      nextEpBtn.classList.remove('show', 'filling');
-      extraBtn.classList.remove('show');
-      creditsBtn.classList.remove('show');
-      const fillEl = nextEpBtn.querySelector('.next-ep-fill');
-      if (fillEl) {
-        fillEl.style.transition = 'none';
-        fillEl.style.width = '0%';
-      }
-      window.location.href = "https://battleforstarswand.crd.co/#credits";
+    video.addEventListener('ended', function() {
+      setStoredTime(0);
     });
   })();
 </script>
