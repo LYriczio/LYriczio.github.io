@@ -1,0 +1,937 @@
+<div class="player-safe-wrapper">
+  <div class="player-wrapper">
+    <div class="video-frame" id="bfsw-player-container">
+      <div id="bfsw-loading-screen" class="loading-screen">
+        <img id="bfsw-loading-img" src="https://i.ibb.co/Csmm5nBH/image.png" alt="loading" class="spin-logo">
+        <div class="loading-msg">loading player...</div>
+      </div>
+      <video id="bfsw-main-video" src="https://ik.imagekit.io/LyricifyMetaData/_Welcome%20One%20And%20All!_%20_%20Battle%20for%20Stars%20Wand%20S1E1.mp4" playsinline webkit-playsinline preload="auto"></video>
+      <button id="bfsw-skip-btn" class="skip-btn">skip intro</button>
+      <a href="https://battleforstarswand.crd.co/#watchepisodetwo" id="bfsw-next-ep-btn" class="next-ep-btn">
+        <span class="next-ep-fill"></span>
+        <span class="next-ep-txt">next episode &raquo;</span>
+      </a>
+      <button id="bfsw-extra-btn" class="cartoon-btn extra-action-btn">extra button</button>
+      <button id="bfsw-credits-btn" class="cartoon-btn credits-action-btn">watch credits</button>
+      <div id="bfsw-fs-sub-box" class="fs-sub-box">
+        <div id="bfsw-fs-sub-txt" class="fs-sub-txt"></div>
+      </div>
+      <div class="bottom-bar">
+        <button id="bfsw-play-btn" class="cartoon-btn">&#10074;&#10074;</button>
+        <input type="range" id="bfsw-progress-bar" class="cartoon-slider" value="0" min="0" max="100" step="0.1">
+        <span id="bfsw-time-lbl" class="time-lbl">0:00</span>
+        <button id="bfsw-cc-toggle" class="cartoon-btn off">CC</button>
+        <button id="bfsw-fs-btn" class="cartoon-btn">[ &nbsp; ]</button>
+      </div>
+    </div>
+    <div class="sub-panel" id="bfsw-sub-panel" style="display: none;">
+      <div class="sub-tab">captions</div>
+      <div class="sub-screen">
+        <div id="bfsw-c-2" class="c-line past"></div>
+        <div id="bfsw-c-1" class="c-line past"></div>
+        <div id="bfsw-c-0" class="c-line active"></div>
+        <div id="bfsw-c1" class="c-line future"></div>
+        <div id="bfsw-c2" class="c-line future"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .player-safe-wrapper {
+    all: initial;
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    font-family: 'Comic Sans MS', 'Bubblegum Sans', 'Chalkboard SE', cursive, sans-serif;
+  }
+  .player-safe-wrapper *, .player-safe-wrapper *::before, .player-safe-wrapper *::after {
+    box-sizing: border-box;
+  }
+  .player-safe-wrapper .player-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+    max-width: 820px;
+    margin: 0 auto;
+  }
+  .player-safe-wrapper .video-frame {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: #111;
+    border-radius: 22px;
+    overflow: hidden;
+    border: 5px solid #222;
+    box-shadow: 0 10px 0 #222, 0 15px 25px rgba(0,0,0,0.4);
+    cursor: default;
+  }
+  .player-safe-wrapper .video-frame.mobile-fullscreen {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    max-width: none !important;
+    aspect-ratio: unset !important;
+    border-radius: 0 !important;
+    border: none !important;
+    z-index: 999999 !important;
+    background: #000 !important;
+  }
+  .player-safe-wrapper .video-frame.ui-hidden {
+    cursor: none;
+  }
+  .player-safe-wrapper .video-frame video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+  }
+  .player-safe-wrapper .loading-screen {
+    position: absolute;
+    inset: 0;
+    background: #ffeaa7;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 14px;
+    z-index: 20;
+    transition: opacity 0.3s ease, visibility 0.3s;
+  }
+  .player-safe-wrapper .loading-screen.gone {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+  .player-safe-wrapper .spin-logo {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid #2d3436;
+    box-shadow: 0 6px 0 #2d3436;
+    animation: classicBounce 0.5s infinite cubic-bezier(0.36, 0, 0.66, 1) alternate;
+  }
+  @keyframes classicBounce {
+    0% { transform: translateY(-30px) scaleX(0.9) scaleY(1.1); }
+    50% { transform: translateY(0px) scaleX(1.15) scaleY(0.85); }
+    100% { transform: translateY(-30px) scaleX(0.9) scaleY(1.1); }
+  }
+  .player-safe-wrapper .loading-msg {
+    color: #2d3436;
+    font-size: 20px;
+    font-weight: 900;
+    text-transform: lowercase;
+    letter-spacing: 0.5px;
+  }
+  .player-safe-wrapper .skip-btn {
+    position: absolute;
+    bottom: 75px;
+    right: 25px;
+    background: #ff7675;
+    color: #fff;
+    border: 3px solid #2d3436;
+    border-radius: 14px;
+    padding: 8px 18px;
+    font-size: 16px;
+    font-weight: 900;
+    cursor: pointer;
+    box-shadow: 0 4px 0 #2d3436;
+    z-index: 12;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.25s ease, visibility 0.25s ease, transform 0.08s ease;
+    font-family: inherit;
+    text-transform: lowercase;
+  }
+  .player-safe-wrapper .skip-btn.show {
+    opacity: 1;
+    visibility: visible;
+  }
+  .player-safe-wrapper .video-frame.ui-hidden .skip-btn.show {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+  .player-safe-wrapper .next-ep-btn {
+    position: absolute;
+    bottom: 75px;
+    right: 175px;
+    background: #55efc4;
+    color: #2d3436;
+    border: 3px solid #2d3436;
+    border-radius: 14px;
+    padding: 10px 22px;
+    font-size: 18px;
+    font-weight: 900;
+    cursor: pointer;
+    box-shadow: 0 4px 0 #2d3436;
+    z-index: 13;
+    opacity: 0;
+    visibility: hidden;
+    text-decoration: none;
+    overflow: hidden;
+    display: inline-block;
+    transition: opacity 0.25s ease, visibility 0.25s ease, transform 0.08s ease;
+    font-family: inherit;
+    text-transform: lowercase;
+  }
+  .player-safe-wrapper .next-ep-btn.show {
+    opacity: 1;
+    visibility: visible;
+  }
+  .player-safe-wrapper .video-frame.ui-hidden .next-ep-btn.show {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+  .player-safe-wrapper .next-ep-fill {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 184, 148, 0.35);
+    width: 0%;
+    z-index: 1;
+    pointer-events: none;
+  }
+  .player-safe-wrapper .next-ep-btn.filling .next-ep-fill {
+    transition: width linear;
+    width: 100%;
+  }
+  .player-safe-wrapper .next-ep-txt {
+    position: relative;
+    z-index: 2;
+  }
+  .player-safe-wrapper .extra-action-btn {
+    position: absolute;
+    bottom: 75px;
+    right: 25px;
+    background: #a29bfe;
+    color: #fff;
+    border: 3px solid #2d3436;
+    border-radius: 14px;
+    padding: 10px 22px;
+    font-size: 18px;
+    font-weight: 900;
+    cursor: pointer;
+    box-shadow: 0 4px 0 #2d3436;
+    z-index: 13;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.25s ease, visibility 0.25s ease, transform 0.08s ease;
+    font-family: inherit;
+    text-transform: lowercase;
+  }
+  .player-safe-wrapper .extra-action-btn.show {
+    opacity: 1;
+    visibility: visible;
+  }
+  .player-safe-wrapper .video-frame.ui-hidden .extra-action-btn.show {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+  .player-safe-wrapper .credits-action-btn {
+    position: absolute;
+    bottom: 75px;
+    right: 25px;
+    background: #74b9ff;
+    color: #fff;
+    z-index: 14;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.25s ease, visibility 0.25s ease, transform 0.08s ease;
+    font-family: inherit;
+    text-transform: lowercase;
+  }
+  .player-safe-wrapper .credits-action-btn.show {
+    opacity: 1;
+    visibility: visible;
+  }
+  .player-safe-wrapper .video-frame.ui-hidden .credits-action-btn.show {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+  .player-safe-wrapper .next-ep-btn:hover,
+  .player-safe-wrapper .extra-action-btn:hover,
+  .player-safe-wrapper .credits-action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0 #2d3436;
+  }
+  .player-safe-wrapper .next-ep-btn:active,
+  .player-safe-wrapper .extra-action-btn:active,
+  .player-safe-wrapper .credits-action-btn:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 #2d3436;
+  }
+  .player-safe-wrapper .skip-btn:hover {
+    background: #ff8786;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0 #2d3436;
+  }
+  .player-safe-wrapper .skip-btn:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 #2d3436;
+  }
+  .player-safe-wrapper .bottom-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 14px 18px;
+    background: linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.8) 100%);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    z-index: 10;
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.25s ease, visibility 0.25s ease;
+  }
+  .player-safe-wrapper .video-frame.ui-hidden .bottom-bar {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+  .player-safe-wrapper .cartoon-btn {
+    background: #ff7675;
+    color: #fff;
+    border: 3px solid #2d3436;
+    border-radius: 14px;
+    padding: 6px 14px;
+    font-size: 16px;
+    font-weight: 900;
+    cursor: pointer;
+    box-shadow: 0 4px 0 #2d3436;
+    transition: all 0.08s ease;
+  }
+  .player-safe-wrapper .cartoon-btn:hover {
+    background: #ff8786;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0 #2d3436;
+  }
+  .player-safe-wrapper .cartoon-btn:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 #2d3436;
+  }
+  .player-safe-wrapper #bfsw-cc-toggle {
+    border-radius: 50%;
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+  }
+  .player-safe-wrapper #bfsw-cc-toggle.off {
+    background: #b2bec3;
+  }
+  .player-safe-wrapper .time-lbl {
+    color: #fff;
+    font-weight: 900;
+    font-size: 15px;
+    text-shadow: 2px 2px 0 #2d3436;
+    min-width: 48px;
+  }
+  .player-safe-wrapper .cartoon-slider {
+    flex-grow: 1;
+    -webkit-appearance: none;
+    appearance: none;
+    height: 12px;
+    border-radius: 6px;
+    background: #dfe6e9;
+    outline: none;
+    border: 3px solid #2d3436;
+    touch-action: none;
+    cursor: pointer;
+  }
+  .player-safe-wrapper .cartoon-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #fdcb6e;
+    border: 3px solid #2d3436;
+    cursor: pointer;
+    box-shadow: 0 3px 0 #2d3436;
+  }
+  .player-safe-wrapper .fs-sub-box {
+    position: absolute;
+    bottom: 65px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    padding: 0 20px;
+    z-index: 8;
+    pointer-events: none;
+    display: none;
+    transition: bottom 0.25s ease;
+  }
+  .player-safe-wrapper .video-frame:fullscreen .fs-sub-box,
+  .player-safe-wrapper .video-frame:-webkit-full-screen .fs-sub-box,
+  .player-safe-wrapper .video-frame.mobile-fullscreen .fs-sub-box {
+    display: block;
+  }
+  .player-safe-wrapper .fs-sub-txt {
+    display: inline-block;
+    background: #000;
+    color: #fff;
+    border: 3px solid #fff;
+    padding: 6px 16px;
+    border-radius: 12px;
+    font-size: 22px;
+    font-weight: 900;
+    box-shadow: 0 4px 0 rgba(0,0,0,0.5);
+  }
+  .player-safe-wrapper .sub-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+  }
+  .player-safe-wrapper .sub-tab {
+    background: #2d3436;
+    color: #ffeaa7;
+    border: 4px solid #2d3436;
+    border-bottom: none;
+    padding: 6px 22px;
+    border-radius: 16px 16px 0 0;
+    font-size: 16px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .player-safe-wrapper .sub-screen {
+    width: 100%;
+    background: #000000;
+    border: 4px solid #2d3436;
+    border-radius: 18px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 8px 0 #2d3436;
+  }
+  .player-safe-wrapper .c-line {
+    text-align: center;
+    transition: all 0.2s ease;
+  }
+  .player-safe-wrapper .c-line.past {
+    color: #636e72;
+    font-size: 15px;
+    font-weight: 700;
+  }
+  .player-safe-wrapper .c-line.active {
+    color: #ffeaa7;
+    font-size: 23px;
+    font-weight: 900;
+    text-shadow: 2px 2px 0 #d63031;
+    margin: 4px 0;
+    transform: scale(1.04);
+  }
+  .player-safe-wrapper .c-line.future {
+    color: #636e72;
+    font-size: 15px;
+    font-weight: 700;
+  }
+</style>
+
+<script>
+  (function() {
+    const COOKIE_NAME = 'bfsw_save_point';
+
+    function setCookie(name, value, days) {
+      let expires = "";
+      if (days) {
+        let date = new Date();
+        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+        expires = "; expires=" + date.toUTCString();
+      }
+      document.cookie = name + "=" + encodeURIComponent(value) + expires + "; path=/; SameSite=Lax";
+    }
+
+    function getCookie(name) {
+      let nameEQ = name + "=";
+      let ca = document.cookie.split(';');
+      for(let i = 0; i < ca.length; i++) {
+        let c = ca[i];
+        while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+        if (c.indexOf(nameEQ) === 0) return decodeURIComponent(c.substring(nameEQ.length, c.length));
+      }
+      return null;
+    }
+
+    const loadingImages = [
+      "https://i.ibb.co/Csmm5nBH/image.png",
+      "https://i.ibb.co/VGpJ4r8/image.png",
+      "https://i.ibb.co/NdChrrFr/image.png",
+      "https://i.ibb.co/KcYHNZSb/image.png",
+      "https://i.ibb.co/LhB6M8mY/image.png",
+      "https://i.ibb.co/CsmTHCv5/image.png",
+      "https://i.ibb.co/v4gpdjWm/image.png",
+      "https://i.ibb.co/rGSkBxCX/image.png"
+    ];
+    const imgEl = document.getElementById('bfsw-loading-img');
+    if (imgEl) {
+      let currentImgIdx = Math.floor(Math.random() * loadingImages.length);
+      imgEl.src = loadingImages[currentImgIdx];
+      setInterval(() => {
+        currentImgIdx = (currentImgIdx + 1) % loadingImages.length;
+        if (imgEl) imgEl.src = loadingImages[currentImgIdx];
+      }, 250);
+    }
+    const screen = document.getElementById('bfsw-loading-screen');
+    const pBtn = document.getElementById('bfsw-play-btn');
+    const sBar = document.getElementById('bfsw-progress-bar');
+    const tLbl = document.getElementById('bfsw-time-lbl');
+    const ccBtn = document.getElementById('bfsw-cc-toggle');
+    const fBtn = document.getElementById('bfsw-fs-btn');
+    const skipBtn = document.getElementById('bfsw-skip-btn');
+    const nextEpBtn = document.getElementById('bfsw-next-ep-btn');
+    const extraBtn = document.getElementById('bfsw-extra-btn');
+    const creditsBtn = document.getElementById('bfsw-credits-btn');
+    const box = document.getElementById('bfsw-player-container');
+    const video = document.getElementById('bfsw-main-video');
+    const lineMinus2 = document.getElementById('bfsw-c-2');
+    const lineMinus1 = document.getElementById('bfsw-c-1');
+    const lineZero = document.getElementById('bfsw-c-0');
+    const linePlus1 = document.getElementById('bfsw-c1');
+    const linePlus2 = document.getElementById('bfsw-c2');
+    const fsTxt = document.getElementById('bfsw-fs-sub-txt');
+    const subWrap = document.getElementById('bfsw-sub-panel');
+    if (!video) return;
+
+    let ccOn = false;
+    let hasLoadedOnce = false;
+    let inactivityTimer = null;
+    let nextEpTriggered = false;
+    let creditsClicked = false;
+    let extraDismissed = sessionStorage.getItem('bfsw_extra_dismissed') === 'true';
+    let countdownRemaining = 10000;
+    let countdownStartTime = null;
+    let countdownTimeout = null;
+
+    video.addEventListener('loadedmetadata', () => {
+      const savedData = getCookie(COOKIE_NAME);
+      if (savedData) {
+        try {
+          const parsed = JSON.parse(savedData);
+          if (parsed && parsed.time && parsed.time < video.duration - 5) {
+            video.currentTime = parsed.time;
+          }
+        } catch (e) {}
+      }
+    });
+
+    function saveProgress() {
+      if (!video.paused && video.currentTime > 0) {
+        const data = {
+          time: video.currentTime,
+          timestamp: Date.now()
+        };
+        setCookie(COOKIE_NAME, JSON.stringify(data), 30);
+      }
+    }
+
+    video.addEventListener('timeupdate', () => {
+      if (Math.floor(video.currentTime) % 5 === 0) {
+        saveProgress();
+      }
+    });
+
+    window.addEventListener('beforeunload', saveProgress);
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') {
+        saveProgress();
+      }
+    });
+
+    function hideLoader() {
+      if (!hasLoadedOnce && screen) {
+        hasLoadedOnce = true;
+        screen.classList.add('gone');
+      }
+    }
+    video.addEventListener('canplaythrough', hideLoader);
+    video.addEventListener('loadeddata', hideLoader);
+    video.addEventListener('playing', hideLoader);
+    setTimeout(hideLoader, 12000);
+
+    function showUI() {
+      box.classList.remove('ui-hidden');
+      clearTimeout(inactivityTimer);
+      if (!video.paused) {
+        inactivityTimer = setTimeout(() => {
+          if (!video.paused) {
+            box.classList.add('ui-hidden');
+          }
+        }, 2500);
+      }
+    }
+    box.addEventListener('mousemove', showUI);
+    box.addEventListener('touchstart', showUI);
+
+    function togglePlay(e) {
+      if (e) e.stopPropagation();
+      if (video.paused) {
+        video.play().catch(err => console.log("Play blocked:", err));
+        pBtn.textContent = '\u275A\u275A';
+      } else {
+        video.pause();
+        pBtn.textContent = '\u25B6';
+      }
+    }
+    pBtn.addEventListener('click', togglePlay);
+    video.addEventListener('click', (e) => {
+      togglePlay(e);
+      showUI();
+    });
+
+    video.addEventListener('pause', () => {
+      box.classList.remove('ui-hidden');
+      pBtn.textContent = '\u25B6';
+      clearTimeout(inactivityTimer);
+      if (nextEpTriggered && !creditsClicked && !extraDismissed) {
+        if (countdownTimeout) {
+          clearTimeout(countdownTimeout);
+          countdownTimeout = null;
+        }
+        if (countdownStartTime) {
+          const elapsed = Date.now() - countdownStartTime;
+          countdownRemaining = Math.max(0, countdownRemaining - elapsed);
+          countdownStartTime = null;
+        }
+        const fillEl = nextEpBtn.querySelector('.next-ep-fill');
+        if (fillEl) {
+          const computedWidth = window.getComputedStyle(fillEl).width;
+          fillEl.style.transition = 'none';
+          fillEl.style.width = computedWidth;
+        }
+      }
+    });
+
+    video.addEventListener('play', () => {
+      showUI();
+      pBtn.textContent = '\u275A\u275A';
+      if (nextEpTriggered && !creditsClicked && !extraDismissed && countdownRemaining > 0) {
+        countdownStartTime = Date.now();
+        const fillEl = nextEpBtn.querySelector('.next-ep-fill');
+        if (fillEl) {
+          fillEl.style.transition = `width ${countdownRemaining}ms linear`;
+          fillEl.style.width = '100%';
+        }
+        countdownTimeout = setTimeout(() => {
+          window.location.href = nextEpBtn.href;
+        }, countdownRemaining);
+      }
+    });
+
+    const subs = [
+      { start: 1.104, end: 2.441, text: "Huh, where are we?" },
+      { start: 2.441, end: 5.370, text: "[???]: Welcome, one and all to Battle For Stars Wand!" },
+      { start: 5.370, end: 8.549, text: "And I'm Star, you have accepted to compete" },
+      { start: 8.549, end: 10.701, text: "for my grand prize, my wand!" },
+      { start: 10.701, end: 14.094, text: "Nickle: First of all, that just looks like a normal toy wand" },
+      { start: 14.094, end: 16.332, text: "And second of all, how did we get here?" },
+      { start: 16.471, end: 18.471, text: "Star: You had sent your application forms on the website." },
+      { start: 18.471, end: 22.059, text: "And you all got chosen, so I teleported you to the competing grounds." },
+      { start: 22.059, end: 25.066, text: "Lolipop: [Scoffs] Like, I didn't even get to pack." },
+      { start: 25.066, end: 26.998, text: "Not a good first impression." },
+      { start: 27.712, end: 28.858, text: "Star: Uh huh, yeah. Alright" },
+      { start: 28.858, end: 31.406, text: "Anyways, since you're all here, you can all pick your teams." },
+      { start: 31.406, end: 31.906, text: "Now go!" },
+      { start: 31.906, end: 36.270, text: "Clock: Uh hello, I was just wondering if you would like to be on a team with me?" },
+      { start: 36.270, end: 38.528, text: "Posty: Oh- uh... yeah, of course!" },
+      { start: 38.528, end: 44.840, text: "Clock: Okay great! We just gotta get some more people on our team because 2 isn’t enough." },
+      { start: 44.840, end: 49.830, text: "Posty: Here, let me show you how a master gets people to join their team!" },
+      { start: 49.830, end: 59.621, text: "Uh so- uh... hi! uh... I was wondering if you would like to uh maybe join me and uh clocks team?" },
+      { start: 59.621, end: 61.137, text: "Glove: sure, I’d love to!" },
+      { start: 61.137, end: 64.326, text: "Posty: awsome! Now that’s how a pro does it" },
+      { start: 65.269, end: 69.000, text: "Popcorn: YO, YO, YO! WHATS UP WOULDN’T YOU LIKE TO BE ON A TEAM WITH ME?" },
+      { start: 69.000, end: 70.545, text: "Pom Pom Pencil: uhhhhhhhhh" },
+      { start: 70.545, end: 72.226, text: "Popcorn: Did I hear yes?" },
+      { start: 72.226, end: 76.005, text: "Pom Pom Pencil: what, NO, what part of that makes you think yes?!" },
+      { start: 76.005, end: 78.906, text: "Popcorn: HAH! Yeah, you just said yes." },
+      { start: 78.906, end: 81.261, text: "Pom Pom Pencil: you’gottabe kidding me." },
+      { start: 81.261, end: 83.040, text: "Nickel: oh hey glove! What’s up?" },
+      { start: 83.040, end: 85.410, text: "Glove: oh nothing just hanging out with my team members" },
+      { start: 85.410, end: 87.001, text: "Wanna be on my team?" },
+      { start: 87.001, end: 87.501, text: "Nickel: Sure!" },
+      { start: 87.501, end: 90.707, text: "Glove: great we got 4 team members I’m pretty sure that’s enough!" },
+      { start: 90.707, end: 95.731, text: "Lollipop: ugh seriously why is it THIS hard to find some teammates." },
+      { start: 96.000, end: 98.308, text: "Lollipop: Hey! you seem smart, team with me." },
+      { start: 98.308, end: 100.435, text: "Calculator: uhh okay I’ll be glad to join your team!" },
+      { start: 100.435, end: 104.288, text: "Lollipop: great time to find some other people to join our team" },
+      { start: 104.288, end: 107.496, text: "because only having YOU on our team isn’t enough!" },
+      { start: 107.496, end: 108.747, text: "Trowel: Hey can I-" },
+      { start: 108.747, end: 114.405, text: "Lollipop: fine, only because we need teammates but we’re NOT desperate." },
+      { start: 114.405, end: 118.190, text: "Just one more and we will have a good number of teammates." },
+      { start: 119.102, end: 122.288, text: "Trowel: hey look over there, that guy looks pretty useful!" },
+      { start: 122.288, end: 124.862, text: "Milkshake: Wait, does that mean I’m on your team?" },
+      { start: 124.862, end: 126.140, text: "Trowel: I guess so" },
+      { start: 126.140, end: 128.790, text: "Calculator: Good, we have 4 teammates I think we’re ready." },
+      { start: 129.433, end: 130.579, text: "Rocket Ship: Hello, Gem!" },
+      { start: 130.579, end: 132.799, text: "Gem: Hello Rocket Ship! You wanna team up?" },
+      { start: 132.799, end: 134.240, text: "Rocket Ship: Sure! I would love to." },
+      { start: 134.240, end: 137.854, text: "Popcorn: Oh potential teammates where are youuuu~?" },
+      { start: 137.854, end: 139.024, text: "Ah, there you are!" },
+      { start: 139.024, end: 140.815, text: "Mirror: huh, wha-" },
+      { start: 140.815, end: 143.332, text: "Popcorn: your gonna be on a team with me and Pom Pom Pencil!" },
+      { start: 144.010, end: 146.848, text: "Rocket Ship: Hey, I was wondering if me and Gem can join your team, Popcorn?" },
+      { start: 146.848, end: 149.205, text: "Popcorn: yeah you seem cool I guess you can team with us!" },
+      { start: 149.205, end: 153.069, text: "Water: Oh man, everyone is part of a team I need to join a team now!" },
+      { start: 153.813, end: 155.671, text: "Glove: oh hey are you looking for a team?" },
+      { start: 155.671, end: 157.449, text: "Water: Yeah, I have no one to be on a team with." },
+      { start: 157.449, end: 159.820, text: "Glove: well you can join our group if you’d like!" },
+      { start: 159.820, end: 161.889, text: "Water: Wow really?- Thanks!" },
+      { start: 161.889, end: 165.822, text: "Star: And with that the teams have been made! Cue the intro!" },
+      { start: 211.920, end: 213.920, text: "Nickel: wow, that was a really good intro!" },
+      { start: 215.063, end: 218.588, text: "Star: good…I worked hard on it. Now you all have to choose your team names!" },
+      { start: 219.635, end: 222.000, text: "Lollipop: Alright everyone, we need to have a good team name!" },
+      { start: 226.895, end: 228.895, text: "Lollipop: Are you serious right now?" },
+      { start: 228.895, end: 231.271, text: "Glove: I think our team name should be the winners!" },
+      { start: 235.299, end: 237.916, text: "Popcorn: that might just be the WORST team name ever!" },
+      { start: 242.528, end: 244.528, text: "Popcorn: ARE YOU KIDDING ME?" },
+      { start: 244.528, end: 249.746, text: "Star: Now, that that’s taken care of we can all go and relax because there’s no challenge today!" },
+      { start: 249.746, end: 251.781, text: "Milkshake: Good, I prefer not to compete today." },
+      { start: 251.781, end: 254.560, text: "Star: JUST KIDDING! Todays challenge is called ‘Freeze Frame’" },
+      { start: 255.132, end: 258.744, text: "where one member from each team must pose for a picture taken by their teammates." },
+      { start: 258.744, end: 263.195, text: "when I say go. You will only have 3 seconds to get into a position! That sound good?" },
+      { start: 263.195, end: 264.524, text: "Lollipop: Well, actually-" },
+      { start: 264.524, end: 266.148, text: "Star: GREAT LETS GET STARTED!" },
+      { start: 266.148, end: 269.785, text: "Popcorn: guys I’m pretty sure we all know who’s the most suitable one to do be in the photo" },
+      { start: 269.785, end: 271.709, text: "Pom Pom Pencil: What about me?" },
+      { start: 271.709, end: 274.721, text: "My beautiness will guarantee us a 1st place spot." },
+      { start: 275.435, end: 278.715, text: "Popcorn: Yeah, but do you have some ripper shades like I do?" },
+      { start: 278.715, end: 281.287, text: "Pom Pom Pencil: No, because they look ridiculous." },
+      { start: 281.287, end: 284.949, text: "Popcorn: You''re OBVIOUSLY too uncool to understand how awesome these look." },
+      { start: 284.949, end: 286.198, text: "I'll be in the photo" },
+      { start: 286.198, end: 289.967, text: "Pom Pom Pencil: I don’t even care anymore there’s no point in arguing with you." },
+      { start: 289.967, end: 292.025, text: "Glove: Alrighty, who wants to be in the photo?" },
+      { start: 292.025, end: 293.901, text: "Nickel: Ooh, Ooh, pick me, pick me!" },
+      { start: 293.901, end: 295.161, text: "Glove: Alright, Nickel you're up!" },
+      { start: 295.161, end: 296.073, text: "Nickel: Yippeee!" },
+      { start: 296.690, end: 298.477, text: "Lollipop: Who wants to be in the picture?" },
+      { start: 298.477, end: 301.639, text: "Milkshake: Not it, I don’t really feel like taking a photo right now." },
+      { start: 301.639, end: 304.566, text: "Lollipop: What about you Calculator, do you wanna be in the photo?" },
+      { start: 304.566, end: 306.956, text: "Calculator: Uh, yeah sure why not?" },
+      { start: 306.956, end: 310.179, text: "Star: Alright, now that everyone has decided who goes in the photo" },
+      { start: 310.179, end: 312.307, text: "The photo shooting will now take place!" },
+      { start: 314.557, end: 316.557, text: "Star: Alright! let’s review them one by one." },
+      { start: 316.557, end: 317.866, text: " Starting with…" },
+      { start: 317.866, end: 319.208, text: "worst team name ever’s photo." },
+      { start: 319.208, end: 322.042, text: " Wow popcorn I gotta say this looks really cool!" },
+      { start: 322.042, end: 323.054, text: " You guys are safe." },
+      { start: 323.054, end: 324.926, text: "Popcorn: Heh…told you guys!" },
+      { start: 324.926, end: 327.913, text: "Star: The winners, you're up. Let’s take a look at yours..." },
+      { start: 327.913, end: 331.914, text: "Uh nickel your pose isn’t really unique it’s just you lifting up one of your legs." },
+      { start: 331.914, end: 333.871, text: "Nickel: But, doesn’t it look good?" },
+      { start: 333.871, end: 338.068, text: "Star: Sorry, Winners. You guys lose I’ll see you at the elimination tonight." },
+      { start: 338.068, end: 340.241, text: "Glove: It’s alright, you gave it your best shot!" },
+      { start: 340.241, end: 343.258, text: "Water: At least TRY to do some kind of unique pose will ya?!" },
+      { start: 343.258, end: 346.623, text: "Nickel: hey I don’t have any arms so my poses are kinda limited here!" },
+      { start: 347.167, end: 350.858, text: "Star: Good team name you're up, let’s check out your photo shall we?" },
+      { start: 350.858, end: 355.075, text: "Calculator love the pose! Good team name you are officially safe." },
+      { start: 355.075, end: 358.755, text: "Star: Alright winners I will be seeing you at the elimination tonight, everyone else is safe!" },
+      { start: 359.800, end: 361.800, text: "Star: It’s kinda ironic how you guys are named the winners" },
+      { start: 361.800, end: 363.815, text: "and you guys lost at the first challenge." },
+      { start: 364.405, end: 366.000, text: "Now it’s time to read the votes" },
+      { start: 366.000, end: 367.719, text: "First vote..." },
+      { start: 367.720, end: 369.720, text: "Nickel." },
+      { start: 369.720, end: 373.604, text: "second vote: water, that’s one vote nickel, one vote water" },
+      { start: 373.604, end: 377.155, text: " nickel, water, and the first one to leave Battle For Star’s Wand is…" },
+      { start: 377.155, end: 377.981, text: "Nickel." },
+      { start: 377.981, end: 380.240, text: "Looks like your getting the boot." },
+      { start: 380.240, end: 383.100, text: "Nickel: I’m really sorry you guys for making us lose the competition" },
+      { start: 383.100, end: 385.677, text: "-and thanks Glove for saying I gave it my best shot." },
+      { start: 385.677, end: 386.888, text: "it really made me feel better." },
+      { start: 388.844, end: 391.951, text: "Star: what a turn of events nickel was the first person to leave the show" },
+      { start: 391.951, end: 394.262, text: "who will be the next one eliminated?" },
+      { start: 394.262, end: 397.617, text: "Find out next time on Battle For Star’s Wand!" }
+    ];
+
+    function parseSubs(currentTime) {
+      let currentIndex = subs.findIndex(s => currentTime >= s.start && currentTime <= s.end);
+      if (currentIndex === -1) {
+        currentIndex = subs.findIndex(s => s.start > currentTime) - 1;
+        if (currentIndex < -1) currentIndex = subs.length - 1;
+      }
+      
+      const getSubText = (idx) => (subs[idx] ? subs[idx].text : "");
+      
+      if (lineMinus2) lineMinus2.textContent = getSubText(currentIndex - 2);
+      if (lineMinus1) lineMinus1.textContent = getSubText(currentIndex - 1);
+      if (lineZero) lineZero.textContent = getSubText(currentIndex);
+      if (linePlus1) linePlus1.textContent = getSubText(currentIndex + 1);
+      if (linePlus2) linePlus2.textContent = getSubText(currentIndex + 2);
+
+      let activeText = getSubText(currentIndex);
+      if (fsTxt) fsTxt.textContent = activeText;
+    }
+
+    ccBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      ccOn = !ccOn;
+      if (ccOn) {
+        ccBtn.classList.remove('off');
+        if (subWrap) subWrap.style.display = 'flex';
+      } else {
+        ccBtn.classList.add('off');
+        if (subWrap) subWrap.style.display = 'none';
+      }
+    });
+
+    fBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const doc = document;
+      if (!doc.fullscreenElement && !doc.webkitFullscreenElement) {
+        if (box.requestFullscreen) {
+          box.requestFullscreen().catch(err => console.log("Fullscreen error:", err));
+        } else if (box.webkitRequestFullscreen) {
+          box.webkitRequestFullscreen();
+        } else {
+          box.classList.add('mobile-fullscreen');
+        }
+      } else {
+        if (doc.exitFullscreen) {
+          doc.exitFullscreen();
+        } else if (doc.webkitExitFullscreen) {
+          doc.webkitExitFullscreen();
+        } else {
+          box.classList.remove('mobile-fullscreen');
+        }
+      }
+    });
+
+    document.addEventListener('fullscreenchange', () => {
+      if (!document.fullscreenElement) box.classList.remove('mobile-fullscreen');
+    });
+
+    let isSeeking = false;
+    function handleScrub(e) {
+      const rect = sBar.getBoundingClientRect();
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const pos = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+      if (!isNaN(video.duration)) {
+        video.currentTime = pos * video.duration;
+      }
+    }
+
+    sBar.addEventListener('pointerdown', (e) => {
+      isSeeking = true;
+      handleScrub(e);
+      e.stopPropagation();
+    });
+
+    window.addEventListener('pointermove', (e) => {
+      if (!isSeeking) return;
+      handleScrub(e);
+    });
+
+    window.addEventListener('pointerup', () => {
+      isSeeking = false;
+    });
+
+    skipBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      video.currentTime = 205;
+    });
+
+    video.addEventListener('timeupdate', () => {
+      if (video.duration) {
+        const pct = (video.currentTime / video.duration) * 100;
+        if (!isSeeking) sBar.value = pct;
+        let m = Math.floor(video.currentTime / 60);
+        let s = Math.floor(video.currentTime % 60);
+        if (s < 10) s = '0' + s;
+        tLbl.textContent = m + ':' + s;
+        parseSubs(video.currentTime);
+
+        if (video.currentTime >= 165 && video.currentTime <= 207) {
+          skipBtn.classList.add('show');
+        } else {
+          skipBtn.classList.remove('show');
+        }
+
+        if (!extraDismissed && !creditsClicked && video.currentTime >= 398 && video.currentTime < 415) {
+          if (!nextEpTriggered) {
+            nextEpTriggered = true;
+            countdownRemaining = 10000;
+            countdownStartTime = Date.now();
+            nextEpBtn.classList.add('show', 'filling');
+            const fillEl = nextEpBtn.querySelector('.next-ep-fill');
+            if (fillEl) {
+              fillEl.style.transition = `width ${countdownRemaining}ms linear`;
+              fillEl.style.width = '100%';
+            }
+            countdownTimeout = setTimeout(() => {
+              window.location.href = nextEpBtn.href;
+            }, countdownRemaining);
+          }
+        } else {
+          if (nextEpTriggered && (video.currentTime < 398 || creditsClicked || extraDismissed)) {
+            nextEpTriggered = false;
+            clearTimeout(countdownTimeout);
+            countdownTimeout = null;
+            nextEpBtn.classList.remove('show', 'filling');
+            const fillEl = nextEpBtn.querySelector('.next-ep-fill');
+            if (fillEl) {
+              fillEl.style.transition = 'none';
+              fillEl.style.width = '0%';
+            }
+          }
+        }
+
+        if (!extraDismissed && !creditsClicked && video.currentTime >= 398) {
+          extraBtn.classList.add('show');
+        } else {
+          extraBtn.classList.remove('show');
+        }
+
+        if (!extraDismissed && !creditsClicked && video.currentTime >= 409) {
+          creditsBtn.classList.add('show');
+        } else {
+          creditsBtn.classList.remove('show');
+        }
+      }
+    });
+
+    extraBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      extraDismissed = true;
+      sessionStorage.setItem('bfsw_extra_dismissed', 'true');
+      clearTimeout(countdownTimeout);
+      countdownTimeout = null;
+      nextEpBtn.classList.remove('show', 'filling');
+      extraBtn.classList.remove('show');
+      creditsBtn.classList.remove('show');
+      const fillEl = nextEpBtn.querySelector('.next-ep-fill');
+      if (fillEl) {
+        fillEl.style.transition = 'none';
+        fillEl.style.width = '0%';
+      }
+    });
+
+    creditsBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      creditsClicked = true;
+      clearTimeout(countdownTimeout);
+      countdownTimeout = null;
+      nextEpBtn.classList.remove('show', 'filling');
+      extraBtn.classList.remove('show');
+      creditsBtn.classList.remove('show');
+      const fillEl = nextEpBtn.querySelector('.next-ep-fill');
+      if (fillEl) {
+        fillEl.style.transition = 'none';
+        fillEl.style.width = '0%';
+      }
+      window.location.href = "https://battleforstarswand.crd.co/#credits";
+    });
+  })();
+</script>
